@@ -28,7 +28,7 @@
 
 ## 隐私与 Unicode 安全
 
-馆藏地址使用 fragment：`#/v1/s/<Base64URL(UTF-8 seed)>/p/<base36 pageId>`。fragment 不会发送给服务器。收藏、历史、备注和搜索记录的数据库仅存在于浏览器 IndexedDB。页面用 `textContent` 渲染，CSP 禁止外部脚本，并用 `unicode-bidi: isolate` 限制双向文本影响。Raw 模式展示真实字符；Inspect 模式显示 `U+XXXX`。
+普通馆藏地址使用 fragment：`#/v1/s/<Base64URL(UTF-8 seed)>/p/<base36 pageId>`。反向搜索结果使用更短的可重建地址：`#/v1/s/<seed>/q/<query>/o/<occurrenceIndex>`，新浏览器会重新执行确定性逆向计算并恢复同一页面与高亮，避免在 URL 中携带通常超过一万位的搜索结果 pageId。fragment 不会发送给服务器。收藏、历史、备注和搜索记录的数据库仅存在于浏览器 IndexedDB。页面用 `textContent` 渲染，CSP 禁止外部脚本，并用 `unicode-bidi: isolate` 限制双向文本影响。Raw 模式展示真实字符；Inspect 模式显示 `U+XXXX`。
 
 ## 本地运行与测试
 

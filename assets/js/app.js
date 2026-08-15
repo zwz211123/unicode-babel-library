@@ -109,14 +109,30 @@ async function openPage(seed, pageId, pushHash = true, highlight = null) {
 }
 
 async function route() {
-  const match = location.hash.match(/^#\/v1\/s\/([A-Za-z0-9_-]+)\/p\/([0-9a-z]+)$/i);
-  if (!match) {
+  const searchMatch = location.hash.match(/^#\/v1\/s\/([A-Za-z0-9_-]+)\/q\/([A-Za-z0-9_-]+)\/o\/([0-9a-z]+)$/i);
+  const pageMatch = location.hash.match(/^#\/v1\/s\/([A-Za-z0-9_-]+)\/p\/([0-9a-z]+)$/i);
+  if (!searchMatch && !pageMatch) {
     homeView.hidden = false;
     readerView.hidden = true;
     return;
   }
   try {
-    await openPage(decodeSeed(match[1]), fromBase36(match[2]), false);
+    if (searchMatch) {
+      const seed = decodeSeed(searchMatch[1]);
+      const query = decodeSeed(searchMatch[2]);
+      const occurrenceBigInt = fromBase36(searchMatch[3]);
+      if (occurrenceBigInt > BigInt(Number.MAX_SAFE_INTEGER)) throw new RangeError('occurrenceIndex 超出安全范围');
+      const occurrence = Number(occurrenceBigInt);
+      const result = await locateText(seed, query, occurrence);
+      $('#search-input').value = query;
+      $('#occurrence-input').value = String(occurrence);
+      await openPage(seed, result.pageId, false, {
+        start: result.offset,
+        length: Array.from(query).length,
+      });
+      return;
+    }
+    await openPage(decodeSeed(pageMatch[1]), fromBase36(pageMatch[2]), false);
   } catch (error) {
     location.hash = '#/';
     showNotice('URL 中的种子或页码无效', true);
@@ -142,6 +158,15 @@ $('#random-page').addEventListener('click', () => {
   let value = 0n;
   for (const byte of bytes) value = (value << 8n) | BigInt(byte);
   openPage(currentPage.seed, value % MODULUS);
+});
+
+$('#page-jump-form').addEventListener('submit', event => {
+  event.preventDefault();
+  try {
+    openPage(currentPage.seed, fromBase36($('#page-jump-input').value.trim()));
+  } catch (error) {
+    showNotice('请输入有效的 base36 pageId', true);
+  }
 });
 
 $('#raw-mode').addEventListener('click', () => {
@@ -173,10 +198,11 @@ $('#search-form').addEventListener('submit', async event => {
       pageId: toBase36(result.pageId),
       searchedAt: new Date().toISOString(),
     });
-    await openPage(currentPage.seed, result.pageId, true, {
+    await openPage(currentPage.seed, result.pageId, false, {
       start: result.offset,
       length: Array.from(query).length,
     });
+    history.pushState(null, '', `#/v1/s/${encodeSeed(currentPage.seed)}/q/${encodeSeed(query)}/o/${occurrence.toString(36)}`);
     showNotice(`逆向验证通过：目标文本位于第 ${result.offset + 1} 个 Unicode 标量值`);
   } catch (error) {
     showNotice(error.message || '搜索失败', true);

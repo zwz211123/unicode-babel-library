@@ -17,7 +17,7 @@ header('Permissions-Policy: camera=(), microphone=(), geolocation=()');
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="dark">
   <title><?= htmlspecialchars($config['name'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></title>
-  <link rel="stylesheet" href="assets/css/app.css?v=20260816-highlight">
+  <link rel="stylesheet" href="assets/css/app.css?v=20260816-navigation">
 </head>
 <body>
   <header class="masthead">
@@ -66,6 +66,11 @@ header('Permissions-Policy: camera=(), microphone=(), geolocation=()');
 
       <nav class="pager" aria-label="页面导航">
         <button id="prev-page" type="button">← 上一页</button>
+        <form id="page-jump-form" class="page-jump-form">
+          <label for="page-jump-input">跳转至</label>
+          <input id="page-jump-input" type="text" inputmode="text" autocomplete="off" spellcheck="false" placeholder="base36 pageId" required>
+          <button type="submit">页</button>
+        </form>
         <button id="random-page" type="button">随机页</button>
         <button id="next-page" type="button">下一页 →</button>
       </nav>
@@ -92,6 +97,6 @@ header('Permissions-Policy: camera=(), microphone=(), geolocation=()');
   </main>
 
   <footer><span>NO DATABASE · NO TRACKING · ALL GENERATION RUNS LOCALLY</span><span>© <?= date('Y') ?> UBL</span></footer>
-  <script type="module" src="assets/js/app.js?v=20260816-highlight"></script>
+  <script type="module" src="assets/js/app.js?v=20260816-navigation"></script>
 </body>
 </html>
