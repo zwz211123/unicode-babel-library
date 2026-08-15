@@ -42,6 +42,29 @@ function setBusy(busy) {
   document.querySelectorAll('button').forEach(button => { button.disabled = busy; });
 }
 
+async function copyMetadata(item) {
+  const value = $(item.dataset.copyTarget)?.textContent ?? '';
+  if (!value || value === '计算中…') {
+    showNotice('该字段尚未生成', true);
+    return;
+  }
+  try {
+    await navigator.clipboard.writeText(value);
+    showNotice(`${item.dataset.copyLabel}已复制`);
+  } catch (error) {
+    showNotice('复制失败，请手动选择文本', true);
+  }
+}
+
+document.querySelectorAll('.metadata-copy').forEach(item => {
+  item.addEventListener('click', () => copyMetadata(item));
+  item.addEventListener('keydown', event => {
+    if (event.key !== 'Enter' && event.key !== ' ') return;
+    event.preventDefault();
+    copyMetadata(item);
+  });
+});
+
 function appendPageSegment(line, codePoints, highlighted) {
   if (codePoints.length === 0) return;
   if (displayMode === 'inspect' && line.childNodes.length > 0) {

@@ -17,7 +17,7 @@ header('Permissions-Policy: camera=(), microphone=(), geolocation=()');
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="dark">
   <title><?= htmlspecialchars($config['name'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></title>
-  <link rel="stylesheet" href="assets/css/app.css?v=20260816-navigation">
+  <link rel="stylesheet" href="assets/css/app.css?v=20260816-copy-metadata">
 </head>
 <body>
   <header class="masthead">
@@ -55,10 +55,10 @@ header('Permissions-Policy: camera=(), microphone=(), geolocation=()');
       </div>
 
       <dl class="metadata">
-        <div><dt>SEED</dt><dd id="meta-seed"></dd></div>
-        <div><dt>PAGE ID · BASE36</dt><dd id="meta-page"></dd></div>
-        <div><dt>ENGINE</dt><dd id="meta-engine"></dd></div>
-        <div><dt>SHA-256</dt><dd id="meta-hash">计算中…</dd></div>
+        <div class="metadata-copy" role="button" tabindex="0" data-copy-target="#meta-seed" data-copy-label="种子" aria-label="复制种子"><dt>SEED</dt><dd id="meta-seed"></dd></div>
+        <div class="metadata-copy" role="button" tabindex="0" data-copy-target="#meta-page" data-copy-label="页面 ID" aria-label="复制页面 ID"><dt>PAGE ID · BASE36</dt><dd id="meta-page"></dd></div>
+        <div class="metadata-copy" role="button" tabindex="0" data-copy-target="#meta-engine" data-copy-label="算法版本" aria-label="复制算法版本"><dt>ENGINE</dt><dd id="meta-engine"></dd></div>
+        <div class="metadata-copy" role="button" tabindex="0" data-copy-target="#meta-hash" data-copy-label="SHA-256 哈希" aria-label="复制 SHA-256 哈希"><dt>SHA-256</dt><dd id="meta-hash">计算中…</dd></div>
       </dl>
 
       <div id="notice" class="notice" hidden></div>
@@ -97,6 +97,6 @@ header('Permissions-Policy: camera=(), microphone=(), geolocation=()');
   </main>
 
   <footer><span>NO DATABASE · NO TRACKING · ALL GENERATION RUNS LOCALLY</span><span>© <?= date('Y') ?> UBL</span></footer>
-  <script type="module" src="assets/js/app.js?v=20260816-navigation"></script>
+  <script type="module" src="assets/js/app.js?v=20260816-copy-metadata"></script>
 </body>
 </html>
