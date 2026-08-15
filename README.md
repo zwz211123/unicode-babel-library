@@ -2,6 +2,8 @@
 
 一个不保存书、不保存 seed、不保存页码，也不保存搜索记录的确定性 Unicode 巴别图书馆。服务端只提供 PHP 页面壳和静态文件；全部内容生成、搜索、哈希与本地数据均在浏览器中完成。
 
+[在线体验](https://babel.zwztry.com)
+
 ## ubabel-v1 冻结协议
 
 - 字符空间是 Unicode Scalar Values：`U+0000..U+10FFFF`，排除代理区 `U+D800..U+DFFF`，因此 `N = 1,112,064`。
