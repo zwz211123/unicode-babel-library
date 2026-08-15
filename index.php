@@ -17,7 +17,7 @@ header('Permissions-Policy: camera=(), microphone=(), geolocation=()');
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="dark">
   <title><?= htmlspecialchars($config['name'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></title>
-  <link rel="stylesheet" href="assets/css/app.css">
+  <link rel="stylesheet" href="assets/css/app.css?v=20260816-highlight">
 </head>
 <body>
   <header class="masthead">
@@ -92,6 +92,6 @@ header('Permissions-Policy: camera=(), microphone=(), geolocation=()');
   </main>
 
   <footer><span>NO DATABASE · NO TRACKING · ALL GENERATION RUNS LOCALLY</span><span>© <?= date('Y') ?> UBL</span></footer>
-  <script type="module" src="assets/js/app.js"></script>
+  <script type="module" src="assets/js/app.js?v=20260816-highlight"></script>
 </body>
 </html>

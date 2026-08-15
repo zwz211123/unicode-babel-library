@@ -3,7 +3,7 @@ import { hashCodePoints } from './engine/v1/hash.js';
 import { generatePage } from './engine/v1/page.js';
 import { locateText } from './engine/v1/search.js';
 import { ENGINE_VERSION, MODULUS } from './engine/v1/seed.js';
-import { COLUMNS, ROWS, inspectCodePoints } from './engine/v1/unicode.js';
+import { COLUMNS, ROWS, codePointsToString, inspectCodePoints } from './engine/v1/unicode.js';
 import { getLocal, putLocal } from './storage.js';
 
 const $ = selector => document.querySelector(selector);
@@ -13,6 +13,7 @@ const content = $('#page-content');
 const notice = $('#notice');
 let currentPage = null;
 let displayMode = 'raw';
+let activeHighlight = null;
 
 function encodeSeed(seed) {
   const bytes = new TextEncoder().encode(seed);
@@ -41,26 +42,51 @@ function setBusy(busy) {
   document.querySelectorAll('button').forEach(button => { button.disabled = busy; });
 }
 
+function appendPageSegment(line, codePoints, highlighted) {
+  if (codePoints.length === 0) return;
+  if (displayMode === 'inspect' && line.childNodes.length > 0) {
+    line.append(document.createTextNode(' '));
+  }
+  const text = displayMode === 'raw' ? codePointsToString(codePoints) : inspectCodePoints(codePoints);
+  if (!highlighted) {
+    line.append(document.createTextNode(text));
+    return;
+  }
+  const mark = document.createElement('mark');
+  mark.className = 'search-highlight';
+  mark.textContent = text;
+  line.append(mark);
+}
+
 function renderContent() {
   content.replaceChildren();
   for (let row = 0; row < ROWS; row += 1) {
     const line = document.createElement('div');
     line.className = 'page-row';
-    const slice = currentPage.codePoints.slice(row * COLUMNS, (row + 1) * COLUMNS);
-    line.textContent = displayMode === 'raw'
-      ? currentPage.text.slice(
-          currentPage.codePoints.slice(0, row * COLUMNS).reduce((n, cp) => n + (cp > 0xffff ? 2 : 1), 0),
-          currentPage.codePoints.slice(0, (row + 1) * COLUMNS).reduce((n, cp) => n + (cp > 0xffff ? 2 : 1), 0)
-        )
-      : inspectCodePoints(slice);
+    const rowStart = row * COLUMNS;
+    const rowEnd = rowStart + COLUMNS;
+    const slice = currentPage.codePoints.slice(rowStart, rowEnd);
+    const highlightStart = activeHighlight?.start ?? -1;
+    const highlightEnd = highlightStart + (activeHighlight?.length ?? 0);
+
+    if (highlightEnd <= rowStart || highlightStart >= rowEnd) {
+      appendPageSegment(line, slice, false);
+    } else {
+      const localStart = Math.max(0, highlightStart - rowStart);
+      const localEnd = Math.min(COLUMNS, highlightEnd - rowStart);
+      appendPageSegment(line, slice.slice(0, localStart), false);
+      appendPageSegment(line, slice.slice(localStart, localEnd), true);
+      appendPageSegment(line, slice.slice(localEnd), false);
+    }
     content.append(line);
   }
 }
 
-async function openPage(seed, pageId, pushHash = true) {
+async function openPage(seed, pageId, pushHash = true, highlight = null) {
   setBusy(true);
   try {
     currentPage = await generatePage(seed, pageId);
+    activeHighlight = highlight;
     homeView.hidden = true;
     readerView.hidden = false;
     $('#meta-seed').textContent = seed;
@@ -68,6 +94,7 @@ async function openPage(seed, pageId, pushHash = true) {
     $('#meta-engine').textContent = ENGINE_VERSION;
     $('#meta-hash').textContent = '计算中…';
     renderContent();
+    content.querySelector('.search-highlight')?.scrollIntoView({ block: 'center' });
     if (pushHash) history.pushState(null, '', `#/v1/s/${encodeSeed(seed)}/p/${toBase36(currentPage.pageId)}`);
     $('#meta-hash').textContent = await hashCodePoints(currentPage.codePoints);
     const id = `${encodeSeed(seed)}:${toBase36(currentPage.pageId)}`;
@@ -146,7 +173,10 @@ $('#search-form').addEventListener('submit', async event => {
       pageId: toBase36(result.pageId),
       searchedAt: new Date().toISOString(),
     });
-    await openPage(currentPage.seed, result.pageId);
+    await openPage(currentPage.seed, result.pageId, true, {
+      start: result.offset,
+      length: Array.from(query).length,
+    });
     showNotice(`逆向验证通过：目标文本位于第 ${result.offset + 1} 个 Unicode 标量值`);
   } catch (error) {
     showNotice(error.message || '搜索失败', true);

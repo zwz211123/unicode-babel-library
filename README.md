@@ -22,6 +22,8 @@
 
 搜索不会暴力遍历页码。浏览器用 `SHA-256("UnicodeBabel|ubabel-v1|search|" + seed + "|" + occurrenceIndex + "|" + query)` 初始化固定的 xoshiro256**，构造一个确定性背景页面，把目标 Unicode 标量序列写入确定性位置，编码为 X 后直接用 A 的模逆得到 pageId。打开该页后会重新生成并验证 `text.includes(query)`。不同 occurrenceIndex 得到不同背景和地址。
 
+反向搜索成功后，目标 Unicode 标量区间会在结果页高亮；高亮支持跨行文本，并在 Raw 与 Inspect 模式之间切换时保留。
+
 页面 SHA-256 的输入不是 UTF-8/UTF-16 文本，而是 3,200 个 code point 各自按无符号 32-bit big-endian 编码后的 12,800 字节，从而避免平台文本编码差异。
 
 ## 隐私与 Unicode 安全

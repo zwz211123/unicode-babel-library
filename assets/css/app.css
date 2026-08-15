@@ -40,6 +40,7 @@ main { width:min(1380px,calc(100% - 40px)); margin:auto; }
 .metadata dd { margin:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font:12px ui-monospace,monospace; }
 .page-content { min-height:740px; padding:24px; overflow:auto; background:#080a08; border:1px solid var(--line); border-top:0; font:15px/1.45 "Noto Sans Mono","Segoe UI Symbol","Noto Sans Symbols 2",monospace; unicode-bidi:isolate; direction:ltr; }
 .page-row { min-height:1.45em; white-space:pre; unicode-bidi:isolate; }
+.search-highlight { background:var(--acid); color:#090b07; border-radius:2px; padding:0 .08em; box-shadow:0 0 0 2px rgba(198,215,105,.3); }
 .notice { background:var(--acid); color:#111; padding:12px 18px; font-size:13px; }
 .notice.error { background:var(--red); }
 .pager,.reader-actions { display:flex; gap:10px; justify-content:center; margin:20px 0; }
