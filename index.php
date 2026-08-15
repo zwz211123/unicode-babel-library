@@ -17,7 +17,7 @@ header('Permissions-Policy: camera=(), microphone=(), geolocation=()');
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="dark">
   <title><?= htmlspecialchars($config['name'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></title>
-  <link rel="stylesheet" href="assets/css/app.css?v=20260816-copy-metadata">
+  <link rel="stylesheet" href="assets/css/app.css?v=20260816-github-footer">
 </head>
 <body>
   <header class="masthead">
@@ -96,7 +96,11 @@ header('Permissions-Policy: camera=(), microphone=(), geolocation=()');
     </section>
   </main>
 
-  <footer><span>NO DATABASE · NO TRACKING · ALL GENERATION RUNS LOCALLY</span><span>© <?= date('Y') ?> UBL</span></footer>
+  <footer>
+    <span>NO DATABASE · NO TRACKING · ALL GENERATION RUNS LOCALLY</span>
+    <a href="https://github.com/zwz211123/unicode-babel-library" target="_blank" rel="noopener noreferrer" aria-label="在 GitHub 查看 Unicode Babel Library 源代码">GITHUB · SOURCE ↗</a>
+    <span class="footer-copyright">© <?= date('Y') ?> UBL</span>
+  </footer>
   <script type="module" src="assets/js/app.js?v=20260816-copy-metadata"></script>
 </body>
 </html>
