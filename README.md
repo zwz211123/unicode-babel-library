@@ -4,17 +4,18 @@
 
 [在线体验](https://babel.zwztry.com)
 
-## ubabel-v1 冻结协议
+## ubabel-v1 当前协议
 
 - 字符空间是 Unicode Scalar Values：`U+0000..U+10FFFF`，排除代理区 `U+D800..U+DFFF`，因此 `N = 1,112,064`。
 - 每页固定为 40 行 × 80 个标量值，`L = 3,200`，页面空间大小 `M = N^L`。
 - base-N digit `0..U+D7FF` 直接映射到同值 code point；其余 digit 加 `0x800` 跳过代理区。
-- seed 使用 UTF-8 编码并计算 `SHA-256("UnicodeBabel|ubabel-v1|seed|" + seed)`。
-- 摘要前 16 字节按 big-endian 解释为 A 候选；若为 0 则设为 1，之后逐一递增，直到 `gcd(A, M) = 1`。完整 32 字节摘要同时初始化固定实现的 xoshiro256**；通过无偏拒绝采样生成 3,200 个 base-N digit，并把它们拼成 B。
+- A 与 B 使用互相独立的派生域。A 域为 `SHA-256("UnicodeBabel|ubabel-v1|seed|A|" + seed)`，B 域为 `SHA-256("UnicodeBabel|ubabel-v1|seed|B|" + seed)`；两份摘要分别初始化各自的固定 xoshiro256** 流，不共享 PRNG 状态。
+- A 流通过无偏拒绝采样生成完整的 3,200 个 base-N digit，并从高位到低位拼成 A 候选。若候选为 0 则设为 1，之后逐一递增，直到同时满足 `1 <= A < M` 与 `gcd(A, M) = 1`。
+- B 流同样通过无偏拒绝采样独立生成 3,200 个 base-N digit，并从高位到低位拼成 B。
 - 页面映射为 `X = (A × pageId + B) mod M`。X 使用固定 3,200 位 base-N 表示，从最高位到最低位映射到页面字符。
 - `A_INV = A⁻¹ mod M`，因此任意完整页面 X 都能反算地址：`pageId = A_INV × (X − B) mod M`。
 
-这些规则属于 `ubabel-v1` 的兼容性契约。任何会改变 seed 编码、映射、PRNG、页面长度或搜索规则的修改，都必须发布为新 engine version。
+这些规则构成当前 `ubabel-v1` 的完整兼容性契约，Golden Vector 以本文和测试中的当前值为准。
 
 ## 为什么不需要存储所有书
 
@@ -40,13 +41,13 @@
 php -S 127.0.0.1:8080
 ```
 
-访问 `http://127.0.0.1:8080/`。浏览器测试位于 `http://127.0.0.1:8080/tests/run.html`，覆盖 BigInt 数学、Unicode 边界、Emoji/CJK/Combining Mark/ZWJ/RTL、SHA-256、页面长度、Golden Vector 和搜索往返。
+访问 `http://127.0.0.1:8080/`。浏览器测试位于 `http://127.0.0.1:8080/tests/run.html`，覆盖 BigInt 数学、Unicode 边界、Emoji/CJK/Combining Mark/ZWJ/RTL、SHA-256、页面长度、Golden Vector、相邻 PageID 扩散和搜索往返。
 
 Golden Vector：
 
 | Engine | Seed | pageId | SHA-256 |
 |---|---|---:|---|
-| ubabel-v1 | 敦煌 | 0 | `ffdf44292af2fa456464519054098f8c73cb1409418c10d3eb7e32a4f7452469` |
+| ubabel-v1 | 敦煌 | 0 | `f4d917e9b04c0b991116c245785bb6ea51d31e6768faed9555f073f3c25a8381` |
 
 ## Nginx + PHP-FPM 部署
 
