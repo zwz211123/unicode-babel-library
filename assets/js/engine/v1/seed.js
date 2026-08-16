@@ -24,7 +24,10 @@ export async function deriveSeed(seed) {
   if (cache.has(seed)) return cache.get(seed);
   let A = await deriveBaseNValue(A_DOMAIN_PREFIX, seed);
   if (A === 0n) A = 1n;
-  while (gcd(A, MODULUS) !== 1n) A += 1n;
+  while (gcd(A, MODULUS) !== 1n) {
+    A = (A + 1n) % MODULUS;
+    if (A === 0n) A = 1n;
+  }
   const B = await deriveBaseNValue(B_DOMAIN_PREFIX, seed);
   const result = Object.freeze({ A, B, A_INV: modInverse(A, MODULUS) });
   cache.set(seed, result);
